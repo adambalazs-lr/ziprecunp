@@ -1,9 +1,9 @@
 import os
+import tempfile
 from pathlib import Path
-import uuid
 import zipfile
 import timeit
-from __version__ import  __version__ as version
+from __version__ import __version__ as version
 
 # CONFIG
 
@@ -19,42 +19,21 @@ targets = [
 
 # APP
 
-def unique_file(path):
-    return str(uuid.uuid4())
-
-
 def unpack(path):
-    path_to_str = str(path)
-    # print("Unpacking " + path_to_str)
-    unique_dirname = unique_file(path)
-    temp_dir = os.path.join(os.path.dirname(path), unique_dirname)
-    os.mkdir(temp_dir)
-    error = False
     try:
-        with zipfile.ZipFile(path_to_str, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
-    except Exception as e:
-        print("EXCEPTION " + path_to_str + " -> " + str(e))
-        try:
-            zip_ref.close()
-        except:
-            print("Cannot close zip_ref")
-        else:
+        with tempfile.TemporaryDirectory() as temp_dir:
             try:
-                os.remove(temp_dir)
-            except:
-                print("Cannot delete ", temp_dir)
-
-        error = True
-
-    if error:
-        return False
-
-    else:
-        os.remove(path)
-        os.rename(temp_dir, path)
-
-        return True
+                with zipfile.ZipFile(path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+            except Exception as e:
+                print("EXCEPTION:", path, "->", e)
+                return False
+            else:
+                os.remove(path)
+                os.rename(temp_dir, path)
+                return True
+    except FileNotFoundError:
+        pass
 
 
 def run(directory):
