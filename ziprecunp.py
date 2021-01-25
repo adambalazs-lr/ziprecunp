@@ -6,6 +6,9 @@ import timeit
 from __version__ import __version__ as version
 
 # CONFIG
+class OhShitException(Exception):
+    pass
+
 
 i_dont_care_about = [
     r"webapps\ROOT\WEB-INF\patching-backup.zip",
@@ -29,8 +32,17 @@ def unpack(path):
                 print("EXCEPTION:", path, "->", e)
                 return False
             else:
-                os.remove(path)
-                os.rename(temp_dir, path)
+                try:
+                    os.remove(path)
+                except Exception as e:
+                    #print(f"os.remove({path}) -> {e}")
+                    raise OhShitException(e)
+                try:
+                    os.rename(temp_dir, path)
+                except Exception as e:
+                    #print(f"os.rename({temp_dir}, {path}) -> {e}")
+                    raise OhShitException(e)
+
                 return True
     except FileNotFoundError:
         pass
@@ -46,8 +58,8 @@ def run(directory):
         if not os.path.isdir(path):
             if not any((path_in_str.endswith(x) for x in i_dont_care_about)):
                 if path_in_str.endswith(".jar") or path_in_str.endswith(
-                        ".lpkg") or path_in_str.endswith(".zip"):
-
+                        ".lpkg") or path_in_str.endswith(".zip") or path_in_str.endswith(".war"):
+                    # print(f"Unpacking: {path_in_str}")
                     if unchanged:
                         unchanged = not unpack(path)
                     else:
