@@ -5,18 +5,17 @@ import zipfile
 import timeit
 from __version__ import __version__ as version
 
-# CONFIG
-class OhShitException(Exception):
-    pass
-
-
-i_dont_care_about = [
+skip_these = [
     r"webapps\ROOT\WEB-INF\patching-backup.zip",
-    r"patches\liferay-fix-pack-dxp-5-7210.zip"
+    r"patches\liferay-fix-pack-dxp-5-7210.zip",
+    r"patches\liferay-fix-pack-dxp-2-7310-build3.zip",
+    r"patches\liferay-fix-pack-dxp-1-7310-build9.zip",
+    r"patching-tool\lib\patching-tool.jar",
+    r"bundles\apache-tomcat-9.0.37.zip"
 ]
 targets = [
-    r"c:\liferay\liferay-dxp-7.2.10-DXP-5-2x",
-    r"c:\liferay\liferay-dxp-7.2.10-DXP-5-3x"
+    r"c:\liferay\bundles",
+    r"c:\liferay\liferay-dxp-7.3.10-dxp-2-build3-3"
 ]
 
 
@@ -29,19 +28,22 @@ def unpack(path):
                 with zipfile.ZipFile(path, 'r') as zip_ref:
                     zip_ref.extractall(temp_dir)
             except Exception as e:
-                print("EXCEPTION:", path, "->", e)
+                print("x_x zip extraction exception; file:", path, "; temp_dir:", temp_dir, " -> ",
+                      e)
                 return False
             else:
                 try:
                     os.remove(path)
+                    print(f"--- os.remove({path})...")
                 except Exception as e:
-                    #print(f"os.remove({path}) -> {e}")
-                    raise OhShitException(e)
+                    print(f"x_x os.remove({path}) -> {e}")
+                    raise IOError(e)
                 try:
                     os.rename(temp_dir, path)
+                    print(f"--- os.rename({temp_dir}, {path})...")
                 except Exception as e:
-                    #print(f"os.rename({temp_dir}, {path}) -> {e}")
-                    raise OhShitException(e)
+                    print(f"x_x os.rename({temp_dir}, {path}) -> {e}")
+                    raise IOError(e)
 
                 return True
     except FileNotFoundError:
@@ -56,7 +58,7 @@ def run(directory):
         path_in_str = str(path)
 
         if not os.path.isdir(path):
-            if not any((path_in_str.endswith(x) for x in i_dont_care_about)):
+            if not any((path_in_str.endswith(x) for x in skip_these)):
                 if path_in_str.endswith(".jar") or path_in_str.endswith(
                         ".lpkg") or path_in_str.endswith(".zip") or path_in_str.endswith(".war"):
                     # print(f"Unpacking: {path_in_str}")
