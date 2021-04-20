@@ -7,15 +7,12 @@ from __version__ import __version__ as version
 
 skip_these = [
     r"webapps\ROOT\WEB-INF\patching-backup.zip",
-    r"patches\liferay-fix-pack-dxp-5-7210.zip",
-    r"patches\liferay-fix-pack-dxp-2-7310-build3.zip",
-    r"patches\liferay-fix-pack-dxp-1-7310-build9.zip",
     r"patching-tool\lib\patching-tool.jar",
-    r"bundles\apache-tomcat-9.0.37.zip"
+    r"bundles\apache-tomcat-9.0.37.zip",
 ]
 targets = [
-    r"c:\liferay\bundles",
-    r"c:\liferay\liferay-dxp-7.3.10-dxp-2-build3-3"
+    r"c:\liferay\_WORK\a-3.0.22",
+    r"c:\liferay\_WORK\a-nightly",
 ]
 
 
@@ -32,18 +29,31 @@ def unpack(path):
                       e)
                 return False
             else:
-                try:
-                    os.remove(path)
-                    print(f"--- os.remove({path})...")
-                except Exception as e:
-                    print(f"x_x os.remove({path}) -> {e}")
-                    raise IOError(e)
-                try:
-                    os.rename(temp_dir, path)
-                    print(f"--- os.rename({temp_dir}, {path})...")
-                except Exception as e:
-                    print(f"x_x os.rename({temp_dir}, {path}) -> {e}")
-                    raise IOError(e)
+
+                c = 0
+                print(f"--- os.remove({path})...")
+                while True:
+                    try:
+                        os.remove(path)
+                        break
+                    except Exception as e:
+                        c += 1
+
+                    if c > 3:
+                        print(f"x_x os.remove({path}) -> {e}")
+                        raise IOError(e)
+
+                c = 0
+                print(f"--- os.rename({temp_dir}, {path})...")
+                while True:
+                    try:
+                        os.rename(temp_dir, path)
+                    except Exception as e:
+                        c += 1
+
+                    if c > 3:
+                        print(f"x_x os.rename({temp_dir}, {path}) -> {e}")
+                        raise IOError(e)
 
                 return True
     except FileNotFoundError:
