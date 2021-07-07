@@ -6,13 +6,14 @@ import timeit
 from __version__ import __version__ as version
 
 skip_these = [
-    r"webapps\ROOT\WEB-INF\patching-backup.zip",
+    #r"webapps\ROOT\WEB-INF\patching-backup.zip",
     r"patching-tool\lib\patching-tool.jar",
     r"bundles\apache-tomcat-9.0.37.zip",
 ]
 targets = [
-    r"c:\liferay\_WORK\a-3.0.22",
-    r"c:\liferay\_WORK\a-nightly",
+    #r"c:\liferay\_DIFF\stuffff",
+    r"c:\Users\adam\7210-dxp-13-diff\bundles",
+    r"c:\Users\adam\7210-dxp-13-diff\liferay-dxp-7.2.10-ga1",
 ]
 
 
@@ -45,17 +46,19 @@ def unpack(path):
 
                 c = 0
                 print(f"--- os.rename({temp_dir}, {path})...")
+
+                error = None
                 while True:
                     try:
                         os.rename(temp_dir, path)
                     except Exception as e:
                         c += 1
+                        error = e
 
                     if c > 3:
                         print(f"x_x os.rename({temp_dir}, {path}) -> {e}")
-                        raise IOError(e)
+                        raise IOError(error)
 
-                return True
     except FileNotFoundError:
         pass
 
